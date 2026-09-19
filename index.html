@@ -1,0 +1,1501 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>추석 맞이 월토배구 한마당 대회</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts (Gowun Dodum & Noto Sans KR) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Gowun+Dodum&family=Noto+Sans+KR:wght@300;400;600;700;900&display=swap" rel="stylesheet">
+    <!-- Canvas Confetti for Chuseok Celebration -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Noto Sans KR', 'sans-serif'],
+                        festive: ['Gowun Dodum', 'sans-serif']
+                    },
+                    colors: {
+                        chuseok: {
+                            night: '#0f172a',
+                            moon: '#fde047',
+                            gold: '#eab308',
+                            amber: '#f59e0b',
+                            crimson: '#9f1239',
+                            slate: '#1e293b'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #311042 100%);
+            min-height: 100vh;
+            color: #f8fafc;
+        }
+        .glass-panel {
+            background: rgba(30, 41, 59, 0.75);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+        }
+        .tab-btn.active {
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+            color: #ffffff;
+            font-weight: 700;
+            box-shadow: 0 4px 14px rgba(245, 158, 11, 0.4);
+        }
+        @keyframes pulse-gold {
+            0%, 100% { transform: scale(1); filter: drop-shadow(0 0 10px rgba(234, 179, 8, 0.6)); }
+            50% { transform: scale(1.05); filter: drop-shadow(0 0 25px rgba(234, 179, 8, 0.9)); }
+        }
+        .animate-pulse-gold {
+            animation: pulse-gold 1.5s infinite ease-in-out;
+        }
+    </style>
+</head>
+<body class="pb-16">
+
+    <!-- Header Banner -->
+    <header class="relative overflow-hidden pt-8 pb-10 px-4 text-center border-b border-amber-500/20">
+        <!-- Decorative Moon Graphic -->
+        <div class="absolute -top-12 left-1/2 -translate-x-1/2 w-48 h-48 bg-amber-300/10 rounded-full blur-2xl pointer-events-none"></div>
+        <div class="max-w-4xl mx-auto relative z-10">
+            <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/20 text-amber-300 text-xs sm:text-sm font-semibold mb-3 border border-amber-500/30">
+                <i class="fa-solid fa-moon text-yellow-300"></i> 풍성한 한가위 맞이 동호회 배구 대축제
+            </div>
+            <h1 class="text-3xl sm:text-5xl font-black tracking-tight text-white font-festive mb-2 drop-shadow-md">
+                🌕 추석 맞이 <span class="text-transparent bg-clip-text bg-gradient-to-r from-amber-300 via-yellow-200 to-amber-500">월·토·배·구</span> 한마당
+            </h1>
+            <p class="text-slate-300 text-sm sm:text-base max-w-xl mx-auto font-light">
+                균등하게 배치된 나의 팀을 검색하고 대회 대진표, 일정 및 경품 추첨에 참여하세요.
+            </p>
+
+            <!-- Admin Mode Toggle & Sync Badge -->
+            <div class="mt-4 flex flex-wrap items-center justify-center gap-2">
+                <button onclick="handleAdminToggleClick()" id="adminToggleBtn" class="px-3.5 py-1.5 rounded-full text-xs font-bold transition-all flex items-center gap-1.5 bg-slate-800 text-slate-300 border border-slate-700 hover:border-amber-400 shadow-md">
+                    <i class="fa-solid fa-lock text-amber-400" id="adminLockIcon"></i>
+                    <span id="adminBtnText">일반 회원 모드</span>
+                </button>
+                <span id="syncBadge" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold bg-slate-800/80 text-slate-400 border border-slate-700">
+                    <span class="w-2 h-2 rounded-full bg-amber-400 animate-pulse"></span> 실시간 연결 확인 중...
+                </span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Navigation Tabs -->
+    <main class="max-w-5xl mx-auto px-4 mt-6">
+        <div class="flex flex-wrap justify-center gap-2 mb-8 bg-slate-900/60 p-1.5 rounded-2xl border border-slate-700/50">
+            <button onclick="switchTab('raffle')" id="tab-raffle" class="tab-btn active px-4 py-2.5 rounded-xl text-xs sm:text-sm transition-all flex items-center gap-2">
+                <i class="fa-solid fa-gift text-amber-400"></i> 경품 추첨 🎁
+            </button>
+            <button onclick="switchTab('teams')" id="tab-teams" class="tab-btn text-slate-300 hover:text-white px-4 py-2.5 rounded-xl text-xs sm:text-sm transition-all flex items-center gap-2">
+                <i class="fa-solid fa-users-viewfinder"></i> 팀별 대진 명단
+            </button>
+            <button onclick="switchTab('draft')" id="tab-draft" class="tab-btn text-slate-300 hover:text-white px-4 py-2.5 rounded-xl text-xs sm:text-sm transition-all flex items-center gap-2">
+                <i class="fa-solid fa-shuffle"></i> 팀 자동 추첨기
+            </button>
+            <button onclick="switchTab('schedule')" id="tab-schedule" class="tab-btn text-slate-300 hover:text-white px-4 py-2.5 rounded-xl text-xs sm:text-sm transition-all flex items-center gap-2">
+                <i class="fa-solid fa-trophy"></i> 경기 일정 & 순위표
+            </button>
+            <button onclick="switchTab('manage')" id="tab-manage" class="tab-btn text-slate-300 hover:text-white px-4 py-2.5 rounded-xl text-xs sm:text-sm transition-all flex items-center gap-2">
+                <i class="fa-solid fa-user-pen"></i> 선수 명단 수정
+            </button>
+        </div>
+
+        <!-- TAB 1: RAFFLE / LUCKY DRAW -->
+        <section id="content-raffle" class="tab-content block">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                <!-- Left Column: Admin Raffle & Member Management -->
+                <div class="lg:col-span-5 space-y-6">
+                    <div class="glass-panel p-6 rounded-3xl border border-amber-500/30">
+                        <div class="flex items-center justify-between mb-3">
+                            <h2 class="text-xl font-bold text-white flex items-center gap-2">
+                                <i class="fa-solid fa-ticket text-amber-400"></i> 경품 번호 및 명단 관리
+                            </h2>
+                            <span class="text-xs bg-amber-500/20 text-amber-300 px-3 py-1 rounded-full border border-amber-500/30 font-bold" id="raffleAssignedCountBadge">
+                                발급 현황: 0명
+                            </span>
+                        </div>
+                        <p class="text-xs text-slate-400 mb-5">
+                            관리자가 경품 번호를 랜덤으로 일괄 부여하거나, 이름과 경품 번호를 직접 추가 및 수정할 수 있습니다.
+                        </p>
+
+                        <!-- Admin Management Buttons -->
+                        <div class="space-y-2.5 bg-slate-900/80 p-4 rounded-2xl border border-slate-800">
+                            <button onclick="autoAssignAllRaffleNumbers()" class="w-full py-3 bg-gradient-to-r from-amber-500 via-yellow-400 to-amber-500 hover:from-amber-400 hover:to-yellow-300 text-slate-950 font-black rounded-xl text-sm shadow-md transition-all flex items-center justify-center gap-2">
+                                <i class="fa-solid fa-wand-magic-sparkles"></i> 전원 경품번호 랜덤 부여
+                            </button>
+                            
+                            <div class="grid grid-cols-2 gap-2 pt-1">
+                                <button onclick="openAddRaffleMemberModal()" class="py-2.5 bg-slate-800 hover:bg-slate-700 text-amber-300 border border-amber-500/30 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5">
+                                    <i class="fa-solid fa-user-plus"></i> 이름/번호 추가
+                                </button>
+                                <button onclick="clearAllRaffleNumbers()" class="py-2.5 bg-slate-800 hover:bg-slate-700 text-rose-300 border border-rose-500/30 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5">
+                                    <i class="fa-solid fa-rotate-left"></i> 번호 전체 초기화
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Assigned Tickets Summary List with Quick Edit -->
+                    <div class="glass-panel p-5 rounded-3xl border border-slate-800 max-h-[420px] overflow-y-auto">
+                        <div class="flex items-center justify-between mb-3">
+                            <h3 class="text-sm font-bold text-slate-300 flex items-center gap-1.5">
+                                <i class="fa-solid fa-list-ol text-amber-400"></i> 선수 및 경품 번호 목록
+                            </h3>
+                            <span class="text-[11px] text-slate-400">클릭하여 번호 수정</span>
+                        </div>
+                        <div class="space-y-2" id="assignedTicketsGrid">
+                            <!-- Dynamic Tickets Grid -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Column: Admin Draw Stage -->
+                <div class="lg:col-span-7 space-y-6">
+                    <div class="glass-panel p-6 sm:p-8 rounded-3xl border border-amber-500/40 text-center relative overflow-hidden shadow-2xl">
+                        <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-amber-500/20 text-amber-300 text-xs font-bold mb-4 border border-amber-500/30">
+                            <i class="fa-solid fa-crown text-yellow-300"></i> 한가위 경품 추첨 무대
+                        </div>
+
+                        <!-- Main Display Number Rolling Box -->
+                        <div class="my-6 bg-slate-950/90 border-2 border-amber-500/60 rounded-3xl p-8 sm:p-10 relative shadow-inner">
+                            <span class="text-xs text-slate-400 block mb-1 uppercase tracking-widest">RAFFLE NUMBER</span>
+                            <div id="raffleDisplayNo" class="text-6xl sm:text-8xl font-black text-transparent bg-clip-text bg-gradient-to-r from-amber-300 via-yellow-200 to-amber-500 font-mono tracking-tighter transition-all duration-100 drop-shadow-md">
+                                00
+                            </div>
+                            
+                            <!-- Winner Detail Overlay -->
+                            <div id="raffleWinnerDetail" class="mt-4 pt-4 border-t border-slate-800 hidden animate-fade-in">
+                                <div class="text-xs text-amber-400 font-bold mb-1">🎉 축하합니다! 당첨자 발생 🎉</div>
+                                <div class="text-2xl sm:text-3xl font-black text-white" id="wName">김철수</div>
+                                <div class="text-sm text-slate-300 mt-1" id="wTeam">월팀 🌕 (경품 번호: <span id="wNo" class="text-amber-300 font-bold">12</span>번)</div>
+                            </div>
+                        </div>
+
+                        <!-- Draw Controls -->
+                        <div class="space-y-3">
+                            <div class="flex flex-wrap items-center justify-center gap-2 max-w-md mx-auto">
+                                <input type="text" id="prizeTitleInput" placeholder="경품명 입력 (예: 1등 한우 세트, 과일 세트)" 
+                                    class="flex-1 px-4 py-3 bg-slate-900 border border-slate-700 rounded-xl text-white text-sm outline-none focus:border-amber-400">
+                                
+                                <button onclick="startRaffleDraw()" id="btnStartRaffle" class="px-7 py-3 bg-gradient-to-r from-amber-500 via-yellow-400 to-amber-600 hover:from-amber-400 hover:to-yellow-300 text-slate-950 font-black text-base rounded-xl shadow-xl shadow-amber-500/20 active:scale-95 transition-all flex items-center gap-2">
+                                    <i class="fa-solid fa-gift"></i> 경품 추첨 시작!
+                                </button>
+                            </div>
+                            <p class="text-[11px] text-slate-400">
+                                * 경품 추첨 버튼을 누르면 축하 음악과 함께 등록된 경품 번호 중 당첨자가 추첨됩니다.
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Winner History Table -->
+                    <div class="glass-panel p-6 rounded-3xl border border-slate-800">
+                        <div class="flex justify-between items-center mb-4">
+                            <h3 class="text-lg font-bold text-white flex items-center gap-2">
+                                <i class="fa-solid fa-trophy text-amber-400"></i> 경품 당첨자 명단
+                            </h3>
+                            <button onclick="clearRaffleHistory()" class="text-xs text-rose-400 hover:underline">
+                                당첨 내역 초기화
+                            </button>
+                        </div>
+
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-sm text-left text-slate-300">
+                                <thead class="text-xs bg-slate-900/90 text-amber-300 uppercase border-b border-slate-700">
+                                    <tr>
+                                        <th class="py-2.5 px-3">경품명</th>
+                                        <th class="py-2.5 px-3 text-center">번호</th>
+                                        <th class="py-2.5 px-3">당첨자</th>
+                                        <th class="py-2.5 px-3">소속 팀</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="raffleWinnersBody" class="divide-y divide-slate-800">
+                                    <!-- Dynamic Winners List -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB 2: TEAMS VIEW -->
+        <section id="content-teams" class="tab-content hidden">
+            <div class="flex justify-between items-center mb-6">
+                <div>
+                    <h2 class="text-2xl font-bold text-white flex items-center gap-2">
+                        <i class="fa-solid fa-layer-group text-amber-400"></i> 4개 팀 구성 현황
+                    </h2>
+                    <p class="text-slate-400 text-xs sm:text-sm">성별과 실력 균형을 고려하여 배정된 팀별 선수 명단입니다.</p>
+                </div>
+                <button onclick="exportTeamsText()" class="px-3.5 py-2 bg-slate-800 hover:bg-slate-700 text-amber-300 border border-amber-500/30 rounded-xl text-xs sm:text-sm font-semibold transition-all flex items-center gap-1.5">
+                    <i class="fa-solid fa-copy"></i> 명단 복사
+                </button>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6" id="teamsGrid">
+                <!-- 4 Teams will be rendered dynamically -->
+            </div>
+        </section>
+
+        <!-- TAB 3: RANDOM DRAFT TOOL -->
+        <section id="content-draft" class="tab-content hidden">
+            <div class="glass-panel p-6 sm:p-8 rounded-3xl max-w-3xl mx-auto">
+                <div class="text-center max-w-lg mx-auto mb-6">
+                    <span class="w-14 h-14 bg-amber-500/20 text-amber-400 rounded-2xl flex items-center justify-center text-2xl mx-auto mb-3 border border-amber-500/30">
+                        <i class="fa-solid fa-dice"></i>
+                    </span>
+                    <h2 class="text-2xl font-bold text-white">팀 자동 추첨기</h2>
+                    <p class="text-slate-300 text-sm mt-1">
+                        회원 명단을 <strong class="text-amber-300">월, 토, 배, 구 4개 팀</strong>에 균등하게 들어가도록 추첨합니다.
+                    </p>
+                </div>
+
+                <!-- Gender Distribution Summary Before Shuffle -->
+                <div class="space-y-4 mb-8" id="draftSkillCounts">
+                    <!-- Dynamic Counts -->
+                </div>
+
+                <!-- Action Button -->
+                <div class="text-center">
+                    <button onclick="requestDraftPin()" id="btnDraft" class="px-8 py-4 bg-gradient-to-r from-amber-500 via-yellow-500 to-amber-600 hover:from-amber-400 hover:to-yellow-500 text-slate-950 font-black text-lg rounded-2xl shadow-xl shadow-amber-500/20 active:scale-95 transition-all flex items-center gap-3 mx-auto">
+                        <i class="fa-solid fa-lock text-slate-950"></i> 팀 자동 추첨!
+                    </button>
+                </div>
+
+                <!-- Animation Container -->
+                <div id="draftAnimationBox" class="hidden my-8 p-6 bg-slate-900/80 rounded-2xl border border-amber-500/40 text-center">
+                    <div class="inline-block animate-spin text-4xl text-amber-400 mb-3">
+                        <i class="fa-solid fa-volleyball"></i>
+                    </div>
+                    <div class="text-lg font-bold text-amber-300 animate-pulse" id="draftStatusText">선수 배치 분석 및 추첨 중...</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB 4: SCHEDULE & STANDINGS -->
+        <section id="content-schedule" class="tab-content hidden">
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <!-- Left 2 Cols: Match Schedule -->
+                <div class="lg:col-span-2 space-y-4">
+                    <div class="flex items-center justify-between">
+                        <h2 class="text-xl font-bold text-white flex items-center gap-2">
+                            <i class="fa-regular fa-calendar-check text-amber-400"></i> 대회 경기 일정 및 결과 입력
+                        </h2>
+                        <span class="text-xs bg-slate-800 text-slate-300 px-3 py-1 rounded-full border border-slate-700">1세트 21점제</span>
+                    </div>
+
+                    <div class="space-y-3" id="matchScheduleList">
+                        <!-- Match List Dynamic Generation -->
+                    </div>
+                </div>
+
+                <!-- Right 1 Col: Live Standings Table -->
+                <div class="space-y-4">
+                    <h2 class="text-xl font-bold text-white flex items-center gap-2">
+                        <i class="fa-solid fa-ranking-star text-amber-400"></i> 실시간 순위표
+                    </h2>
+                    <div class="glass-panel p-4 rounded-2xl overflow-hidden">
+                        <table class="w-full text-sm text-left text-slate-200">
+                            <thead class="text-xs uppercase bg-slate-800/80 text-amber-300 border-b border-slate-700">
+                                <tr>
+                                    <th class="py-2.5 px-2 text-center">순위</th>
+                                    <th class="py-2.5 px-2">팀명</th>
+                                    <th class="py-2.5 px-2 text-center">승</th>
+                                    <th class="py-2.5 px-2 text-center">패</th>
+                                    <th class="py-2.5 px-2 text-center">득실</th>
+                                </tr>
+                            </thead>
+                            <tbody id="standingsBody">
+                                <!-- Dynamic Standings Rows -->
+                            </tbody>
+                        </table>
+                        <p class="text-[11px] text-slate-400 mt-3 text-center">
+                            * 승점 기준: 승수 > 점수 득실차 > 다득점 순
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB 5: ROSTER MANAGEMENT -->
+        <section id="content-manage" class="tab-content hidden">
+            <div class="glass-panel p-6 rounded-3xl max-w-4xl mx-auto">
+                <div class="flex flex-col sm:flex-row justify-between sm:items-center gap-4 mb-6 pb-4 border-b border-slate-700">
+                    <div>
+                        <h2 class="text-xl font-bold text-white flex items-center gap-2">
+                            <i class="fa-solid fa-users-gear text-amber-400"></i> 성별 선수 명단 관리
+                        </h2>
+                        <p class="text-slate-400 text-xs sm:text-sm">
+                            남자/여자 선수 명단을 나누어 관리할 수 있습니다.
+                        </p>
+                    </div>
+                    <div class="flex gap-2">
+                        <button onclick="openAddMemberModal()" class="px-3.5 py-2 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold rounded-xl text-xs sm:text-sm transition-all flex items-center gap-1.5 shadow-md">
+                            <i class="fa-solid fa-user-plus"></i> 선수 추가
+                        </button>
+                        <button onclick="requestResetDefaultData()" class="px-3.5 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl text-xs sm:text-sm transition-all border border-slate-700">
+                            <i class="fa-solid fa-rotate-left"></i> 기본 데이터 초기화
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Gender Sub-Tabs for Roster View -->
+                <div class="flex gap-2 mb-4 bg-slate-950/60 p-1.5 rounded-2xl border border-slate-800 w-fit">
+                    <button onclick="switchGenderRoster('all')" id="roster-tab-all" class="roster-tab-btn px-4 py-2 rounded-xl text-xs font-bold bg-amber-500 text-slate-950 transition-all">
+                        전체 선수
+                    </button>
+                    <button onclick="switchGenderRoster('남')" id="roster-tab-남" class="roster-tab-btn px-4 py-2 rounded-xl text-xs font-bold text-slate-300 hover:text-white transition-all">
+                        👨 남자 선수 명단
+                    </button>
+                    <button onclick="switchGenderRoster('여')" id="roster-tab-여" class="roster-tab-btn px-4 py-2 rounded-xl text-xs font-bold text-slate-300 hover:text-white transition-all">
+                        👩 여자 선수 명단
+                    </button>
+                </div>
+
+                <!-- Roster List Table -->
+                <div class="overflow-x-auto">
+                    <table class="w-full text-sm text-left text-slate-300">
+                        <thead id="rosterTableHead" class="text-xs bg-slate-900/80 text-amber-300 uppercase border-b border-slate-700">
+                            <!-- Rendered dynamically -->
+                        </thead>
+                        <tbody id="rosterTableBody" class="divide-y divide-slate-800">
+                            <!-- Dynamic Roster Rows -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Modal for Adding/Editing Member -->
+    <div id="memberModal" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="glass-panel bg-slate-900 border border-slate-700 p-6 rounded-3xl max-w-md w-full shadow-2xl">
+            <h3 class="text-xl font-bold text-white mb-4 flex items-center gap-2" id="modalTitle">
+                <i class="fa-solid fa-user-plus text-amber-400"></i> 선수 등록
+            </h3>
+            
+            <input type="hidden" id="editMemberId">
+            
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-xs text-slate-400 mb-1">성별 *</label>
+                    <select id="modalGender" class="w-full px-4 py-2.5 bg-slate-800 border border-slate-700 rounded-xl text-white outline-none focus:border-amber-400">
+                        <option value="남">👨 남자 선수</option>
+                        <option value="여">👩 여자 선수</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-xs text-slate-400 mb-1">선수 이름 *</label>
+                    <input type="text" id="modalName" placeholder="예: 홍길동" class="w-full px-4 py-2.5 bg-slate-800 border border-slate-700 rounded-xl text-white outline-none focus:border-amber-400">
+                </div>
+
+                <div>
+                    <label class="block text-xs text-slate-400 mb-1">경품 번호 (선택)</label>
+                    <input type="number" id="modalRaffleNo" placeholder="예: 7 (비워두면 랜덤 부여 가능)" class="w-full px-4 py-2.5 bg-slate-800 border border-slate-700 rounded-xl text-white outline-none focus:border-amber-400 font-mono">
+                </div>
+
+                <div>
+                    <label class="block text-xs text-slate-400 mb-1">실력 등급 *</label>
+                    <select id="modalSkill" class="w-full px-4 py-2.5 bg-slate-800 border border-slate-700 rounded-xl text-white outline-none focus:border-amber-400">
+                        <option value="가">가 레벨 (최상/에이스)</option>
+                        <option value="나">나 레벨 (상/주격수·세터)</option>
+                        <option value="다">다 레벨 (중/수비·센터)</option>
+                        <option value="라">라 레벨 (입문/초보)</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="flex justify-end gap-2 mt-6">
+                <button onclick="closeMemberModal()" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl text-sm font-semibold">취소</button>
+                <button onclick="saveMember()" class="px-5 py-2 bg-amber-500 hover:bg-amber-400 text-slate-950 rounded-xl text-sm font-bold shadow-lg shadow-amber-500/20">저장하기</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Admin Password Input Modal -->
+    <div id="passwordModal" class="fixed inset-0 bg-black/75 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="glass-panel bg-slate-900 border border-amber-500/40 p-6 rounded-3xl max-w-sm w-full shadow-2xl text-center">
+            <div class="w-12 h-12 bg-amber-500/20 text-amber-400 rounded-full flex items-center justify-center text-xl mx-auto mb-3 border border-amber-500/30">
+                <i class="fa-solid fa-key"></i>
+            </div>
+            <h3 class="text-lg font-bold text-white mb-1" id="passwordModalTitle">관리자 비밀번호 확인</h3>
+            <p class="text-xs text-slate-400 mb-4">관리자 비밀번호를 입력하세요.</p>
+            
+            <input type="password" id="pinInput" placeholder="비밀번호 입력" 
+                onkeydown="if(event.key==='Enter') verifyAdminPin()"
+                class="w-full px-4 py-3 bg-slate-800 border border-slate-700 rounded-xl text-center text-white text-lg font-mono outline-none focus:border-amber-400 mb-2">
+            
+            <p id="pinErrorMsg" class="text-xs text-rose-400 hidden mb-3"><i class="fa-solid fa-circle-exclamation"></i> 비밀번호가 올바르지 않습니다.</p>
+
+            <div class="flex justify-center gap-2 mt-2">
+                <button onclick="closePasswordModal()" class="w-1/2 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl text-sm font-semibold">취소</button>
+                <button onclick="verifyAdminPin()" class="w-1/2 py-2.5 bg-amber-500 hover:bg-amber-400 text-slate-950 rounded-xl text-sm font-bold shadow-lg shadow-amber-500/20">확인</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Confirmation Modal (replaces browser confirm dialog) -->
+    <div id="confirmModal" class="fixed inset-0 bg-black/75 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="glass-panel bg-slate-900 border border-slate-700 p-6 rounded-3xl max-w-sm w-full shadow-2xl text-center">
+            <div class="w-12 h-12 bg-amber-500/20 text-amber-400 rounded-full flex items-center justify-center text-xl mx-auto mb-3 border border-amber-500/30">
+                <i class="fa-solid fa-circle-question"></i>
+            </div>
+            <h3 class="text-lg font-bold text-white mb-2" id="confirmModalTitle">확인</h3>
+            <p class="text-xs sm:text-sm text-slate-300 mb-6" id="confirmModalMsg">정말 진행하시겠습니까?</p>
+
+            <div class="flex justify-center gap-2">
+                <button onclick="closeConfirmModal()" class="w-1/2 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl text-sm font-semibold">취소</button>
+                <button onclick="executeConfirmAction()" class="w-1/2 py-2.5 bg-amber-500 hover:bg-amber-400 text-slate-950 rounded-xl text-sm font-bold shadow-lg shadow-amber-500/20">확인</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notification Toast -->
+    <div id="toast" class="fixed bottom-6 right-6 bg-amber-500 text-slate-950 font-bold px-5 py-3 rounded-2xl shadow-2xl transition-all duration-300 transform translate-y-20 opacity-0 z-50 flex items-center gap-2">
+        <i class="fa-solid fa-circle-check text-lg"></i> <span id="toastMsg">처리되었습니다.</span>
+    </div>
+
+    <!-- Firebase Realtime Sync & Application Logic Module -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // Constants & Global State
+        const ADMIN_PIN = "4862";
+        let isAdminMode = false;
+        let rosterGenderFilter = 'all';
+        let pendingPinAction = null;
+        let pendingConfirmCallback = null;
+
+        const TEAMS = [
+            { key: '월팀', name: '월팀 🌕', color: 'border-amber-500/50 bg-amber-500/10 text-amber-300' },
+            { key: '토팀', name: '토팀 🌙', color: 'border-blue-500/50 bg-blue-500/10 text-blue-300' },
+            { key: '배팀', name: '배팀 🏐', color: 'border-emerald-500/50 bg-emerald-500/10 text-emerald-300' },
+            { key: '구팀', name: '구팀 ✨', color: 'border-purple-500/50 bg-purple-500/10 text-purple-300' }
+        ];
+
+        const DEFAULT_MEMBERS = [
+            // 男 - 가,나,다,라
+            { id: 1, gender: '남', name: '김철수', skill: '가', team: '월팀', raffleNo: 1 },
+            { id: 2, gender: '남', name: '이민호', skill: '가', team: '토팀', raffleNo: 2 },
+            { id: 3, gender: '남', name: '박지성', skill: '가', team: '배팀', raffleNo: 3 },
+            { id: 4, gender: '남', name: '최동건', skill: '가', team: '구팀', raffleNo: 4 },
+
+            { id: 5, gender: '남', name: '정우성', skill: '나', team: '월팀', raffleNo: 5 },
+            { id: 6, gender: '남', name: '강동원', skill: '나', team: '토팀', raffleNo: 6 },
+            { id: 7, gender: '남', name: '조인성', skill: '나', team: '배팀', raffleNo: 7 },
+            { id: 8, gender: '남', name: '공유', skill: '나', team: '구팀', raffleNo: 8 },
+
+            { id: 9, gender: '남', name: '손흥민', skill: '다', team: '월팀', raffleNo: 9 },
+            { id: 10, gender: '남', name: '황희찬', skill: '다', team: '토팀', raffleNo: 10 },
+            { id: 11, gender: '남', name: '이강인', skill: '다', team: '배팀', raffleNo: 11 },
+            { id: 12, gender: '남', name: '김민재', skill: '다', team: '구팀', raffleNo: 12 },
+
+            { id: 13, gender: '남', name: '한석규', skill: '라', team: '월팀', raffleNo: 13 },
+            { id: 14, gender: '남', name: '송강호', skill: '라', team: '토팀', raffleNo: 14 },
+            { id: 15, gender: '남', name: '최민식', skill: '라', team: '배팀', raffleNo: 15 },
+            { id: 16, gender: '남', name: '이병헌', skill: '라', team: '구팀', raffleNo: 16 },
+
+            // 女 - 가,나,다,라
+            { id: 17, gender: '여', name: '김연경', skill: '가', team: '월팀', raffleNo: 17 },
+            { id: 18, gender: '여', name: '양효진', skill: '가', team: '토팀', raffleNo: 18 },
+            { id: 19, gender: '여', name: '김희진', skill: '가', team: '배팀', raffleNo: 19 },
+            { id: 20, gender: '여', name: '박정아', skill: '가', team: '구팀', raffleNo: 20 },
+
+            { id: 21, gender: '여', name: '이재영', skill: '나', team: '월팀', raffleNo: 21 },
+            { id: 22, gender: '여', name: '이다영', skill: '나', team: '토팀', raffleNo: 22 },
+            { id: 23, gender: '여', name: '염혜선', skill: '나', team: '배팀', raffleNo: 23 },
+            { id: 24, gender: '여', name: '한송이', skill: '나', team: '구팀', raffleNo: 24 },
+
+            { id: 25, gender: '여', name: '아이유', skill: '다', team: '월팀', raffleNo: 25 },
+            { id: 26, gender: '여', name: '태연', skill: '다', team: '토팀', raffleNo: 26 },
+            { id: 27, gender: '여', name: '윤아', skill: '다', team: '배팀', raffleNo: 27 },
+            { id: 28, gender: '여', name: '수지', skill: '다', team: '구팀', raffleNo: 28 },
+
+            { id: 29, gender: '여', name: '김태희', skill: '라', team: '월팀', raffleNo: 29 },
+            { id: 30, gender: '여', name: '전지현', skill: '라', team: '토팀', raffleNo: 30 },
+            { id: 31, gender: '여', name: '송혜교', skill: '라', team: '배팀', raffleNo: 31 },
+            { id: 32, gender: '여', name: '손예진', skill: '라', team: '구팀', raffleNo: 32 }
+        ];
+
+        const DEFAULT_MATCHES = [
+            { id: 1, time: '14:00 (1경기)', teamA: '월팀', teamB: '토팀', scoreA: null, scoreB: null, status: 'SCHEDULED' },
+            { id: 2, time: '14:40 (2경기)', teamA: '배팀', teamB: '구팀', scoreA: null, scoreB: null, status: 'SCHEDULED' },
+            { id: 3, time: '15:20 (3경기)', teamA: '월팀', teamB: '배팀', scoreA: null, scoreB: null, status: 'SCHEDULED' },
+            { id: 4, time: '16:00 (4경기)', teamA: '토팀', teamB: '구팀', scoreA: null, scoreB: null, status: 'SCHEDULED' },
+            { id: 5, time: '16:40 (5경기)', teamA: '월팀', teamB: '구팀', scoreA: null, scoreB: null, status: 'SCHEDULED' },
+            { id: 6, time: '17:20 (6경기)', teamA: '토팀', teamB: '배팀', scoreA: null, scoreB: null, status: 'SCHEDULED' }
+        ];
+
+        let members = [];
+        let matches = [];
+        let raffleWinners = [];
+
+        let db = null;
+        let auth = null;
+        let stateDocRef = null;
+
+        // Web Audio Synthesizer
+        let audioCtx = null;
+
+        function getAudioContext() {
+            try {
+                if (!audioCtx) {
+                    const AudioContext = window.AudioContext || window.webkitAudioContext;
+                    if (AudioContext) {
+                        audioCtx = new AudioContext();
+                    }
+                }
+                if (audioCtx && audioCtx.state === 'suspended') {
+                    audioCtx.resume().catch(e => console.warn("Audio resume error:", e));
+                }
+                return audioCtx;
+            } catch (e) {
+                console.warn("AudioContext error:", e);
+                return null;
+            }
+        }
+
+        function playTickSound() {
+            try {
+                const ctx = getAudioContext();
+                if (!ctx) return;
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(400 + Math.random() * 200, ctx.currentTime);
+                gain.gain.setValueAtTime(0.08, ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.05);
+
+                osc.connect(gain);
+                gain.connect(ctx.destination);
+
+                osc.start();
+                osc.stop(ctx.currentTime + 0.05);
+            } catch (e) { console.error(e); }
+        }
+
+        function playCelebrationFanfare() {
+            try {
+                const ctx = getAudioContext();
+                if (!ctx) return;
+                const now = ctx.currentTime;
+
+                const notes = [
+                    { note: 261.63, start: 0, duration: 0.15 },
+                    { note: 329.63, start: 0.15, duration: 0.15 },
+                    { note: 392.00, start: 0.30, duration: 0.15 },
+                    { note: 523.25, start: 0.48, duration: 0.80 },
+                    { note: 659.25, start: 0.48, duration: 0.80 }
+                ];
+
+                notes.forEach(n => {
+                    const osc = ctx.createOscillator();
+                    const gain = ctx.createGain();
+
+                    osc.type = 'sawtooth';
+                    osc.frequency.setValueAtTime(n.note, now + n.start);
+
+                    gain.gain.setValueAtTime(0, now + n.start);
+                    gain.gain.linearRampToValueAtTime(0.25, now + n.start + 0.03);
+                    gain.gain.exponentialRampToValueAtTime(0.001, now + n.start + n.duration);
+
+                    osc.connect(gain);
+                    gain.connect(ctx.destination);
+
+                    osc.start(now + n.start);
+                    osc.stop(now + n.start + n.duration);
+                });
+            } catch (e) { console.error(e); }
+        }
+
+        // --- GLOBAL WINDOW BINDINGS TO PREVENT REFERENCE ERRORS ---
+        window.switchTab = function(tabId) {
+            document.querySelectorAll('.tab-content').forEach(el => {
+                el.classList.add('hidden');
+                el.classList.remove('block');
+            });
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('active');
+                btn.classList.add('text-slate-300');
+            });
+
+            const target = document.getElementById(`content-${tabId}`);
+            const btnTarget = document.getElementById(`tab-${tabId}`);
+            if (target) {
+                target.classList.remove('hidden');
+                target.classList.add('block');
+            }
+            if (btnTarget) {
+                btnTarget.classList.add('active');
+                btnTarget.classList.remove('text-slate-300');
+            }
+        };
+
+        window.showToast = function(msg) {
+            const toast = document.getElementById('toast');
+            const toastMsg = document.getElementById('toastMsg');
+            if (!toast || !toastMsg) return;
+            toastMsg.innerText = msg;
+            toast.classList.remove('translate-y-20', 'opacity-0');
+            toast.classList.add('translate-y-0', 'opacity-100');
+
+            setTimeout(() => {
+                toast.classList.remove('translate-y-0', 'opacity-100');
+                toast.classList.add('translate-y-20', 'opacity-0');
+            }, 3000);
+        };
+
+        window.openPasswordModal = function(actionCallback, title) {
+            pendingPinAction = actionCallback;
+            const titleEl = document.getElementById('passwordModalTitle');
+            const errorEl = document.getElementById('pinErrorMsg');
+            const pinInput = document.getElementById('pinInput');
+
+            if (titleEl) titleEl.innerText = title || '관리자 비밀번호 확인';
+            if (errorEl) errorEl.classList.add('hidden');
+            if (pinInput) pinInput.value = '';
+
+            document.getElementById('passwordModal').classList.remove('hidden');
+            setTimeout(() => pinInput?.focus(), 100);
+        };
+
+        window.closePasswordModal = function() {
+            document.getElementById('passwordModal').classList.add('hidden');
+            pendingPinAction = null;
+        };
+
+        window.verifyAdminPin = function() {
+            const pinInput = document.getElementById('pinInput');
+            const errorEl = document.getElementById('pinErrorMsg');
+
+            if (pinInput && pinInput.value === ADMIN_PIN) {
+                isAdminMode = true;
+                updateAdminUI();
+                window.closePasswordModal();
+                if (pendingPinAction) {
+                    const action = pendingPinAction;
+                    pendingPinAction = null;
+                    try {
+                        action();
+                    } catch (err) {
+                        console.error("Action execution error:", err);
+                    }
+                }
+            } else if (errorEl) {
+                errorEl.classList.remove('hidden');
+            }
+        };
+
+        window.showConfirmModal = function(title, msg, callback) {
+            pendingConfirmCallback = callback;
+            document.getElementById('confirmModalTitle').innerText = title;
+            document.getElementById('confirmModalMsg').innerText = msg;
+            document.getElementById('confirmModal').classList.remove('hidden');
+        };
+
+        window.closeConfirmModal = function() {
+            document.getElementById('confirmModal').classList.add('hidden');
+            pendingConfirmCallback = null;
+        };
+
+        window.executeConfirmAction = function() {
+            if (pendingConfirmCallback) {
+                const cb = pendingConfirmCallback;
+                pendingConfirmCallback = null;
+                cb();
+            }
+            window.closeConfirmModal();
+        };
+
+        window.handleAdminToggleClick = function() {
+            if (!isAdminMode) {
+                window.openPasswordModal(() => {
+                    isAdminMode = true;
+                    updateAdminUI();
+                    window.showToast("🔓 관리자 모드로 전환되었습니다.");
+                }, "관리자 모드 전환");
+            } else {
+                isAdminMode = false;
+                updateAdminUI();
+                window.showToast("🔒 일반 회원 모드로 전환되었습니다.");
+            }
+        };
+
+        // --- STREAMING_CHUNK:Implementing business logic and views rendering... ---
+        function updateAdminUI() {
+            const btnText = document.getElementById('adminBtnText');
+            const icon = document.getElementById('adminLockIcon');
+            const btn = document.getElementById('adminToggleBtn');
+
+            if (isAdminMode) {
+                if (btnText) btnText.innerText = "관리자 모드 (실력 등급 & 추첨 관리)";
+                if (icon) icon.className = "fa-solid fa-lock-open text-amber-400";
+                if (btn) btn.className = "px-3.5 py-1.5 rounded-full text-xs font-bold transition-all flex items-center gap-1.5 bg-amber-500/20 text-amber-300 border border-amber-500/50 shadow-md";
+            } else {
+                if (btnText) btnText.innerText = "일반 회원 모드";
+                if (icon) icon.className = "fa-solid fa-lock text-amber-400";
+                if (btn) btn.className = "px-3.5 py-1.5 rounded-full text-xs font-bold transition-all flex items-center gap-1.5 bg-slate-800 text-slate-300 border border-slate-700 hover:border-amber-400 shadow-md";
+            }
+
+            refreshAllViews();
+        }
+
+        // Initialize Firebase
+        async function initRealtime() {
+            const appId = typeof __app_id !== 'undefined' ? __app_id : 'chuseok-volleyball-app';
+            initLocalData();
+
+            try {
+                if (typeof __firebase_config !== 'undefined' && __firebase_config) {
+                    const firebaseConfig = JSON.parse(__firebase_config);
+                    const app = initializeApp(firebaseConfig);
+                    auth = getAuth(app);
+                    db = getFirestore(app);
+
+                    if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                        await signInWithCustomToken(auth, __initial_auth_token);
+                    } else {
+                        await signInAnonymously(auth);
+                    }
+
+                    if (auth.currentUser) {
+                        stateDocRef = doc(db, 'artifacts', appId, 'public', 'data', 'volleyball_state', 'current');
+                        
+                        onSnapshot(stateDocRef, (snapshot) => {
+                            if (snapshot.exists()) {
+                                const data = snapshot.data();
+                                if (data.members) members = data.members;
+                                if (data.matches) matches = data.matches;
+                                if (data.raffleWinners) raffleWinners = data.raffleWinners;
+                                refreshAllViews();
+                                updateSyncBadge(true);
+                            } else {
+                                saveData();
+                                updateSyncBadge(true);
+                            }
+                        }, (error) => {
+                            console.error("Firebase realtime sync error:", error);
+                            updateSyncBadge(false);
+                        });
+                    }
+                } else {
+                    updateSyncBadge(false, "로컬 모드");
+                }
+            } catch (e) {
+                console.error("Firebase init fallback:", e);
+                updateSyncBadge(false, "로컬 모드");
+            }
+        }
+
+        function updateSyncBadge(isOnline, customText) {
+            const badge = document.getElementById('syncBadge');
+            if (!badge) return;
+            if (isOnline) {
+                badge.className = "inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold bg-emerald-500/20 text-emerald-300 border border-emerald-500/40";
+                badge.innerHTML = `<span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span> 실시간 공유 연결됨`;
+            } else {
+                badge.className = "inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold bg-slate-800 text-slate-400 border border-slate-700";
+                badge.innerHTML = `<i class="fa-solid fa-hard-drive text-amber-400"></i> ${customText || '단독 모드'}`;
+            }
+        }
+
+        function initLocalData() {
+            const savedMembers = localStorage.getItem('chuseok_volleyball_members');
+            if (savedMembers) {
+                try { members = JSON.parse(savedMembers); } catch(e) { members = DEFAULT_MEMBERS; }
+            } else {
+                members = JSON.parse(JSON.stringify(DEFAULT_MEMBERS));
+            }
+
+            const savedMatches = localStorage.getItem('chuseok_volleyball_matches');
+            if (savedMatches) {
+                try { matches = JSON.parse(savedMatches); } catch(e) { matches = DEFAULT_MATCHES; }
+            } else {
+                matches = JSON.parse(JSON.stringify(DEFAULT_MATCHES));
+            }
+
+            const savedWinners = localStorage.getItem('chuseok_volleyball_raffle_winners');
+            if (savedWinners) {
+                try { raffleWinners = JSON.parse(savedWinners); } catch(e) { raffleWinners = []; }
+            } else {
+                raffleWinners = [];
+            }
+        }
+
+        function saveData() {
+            localStorage.setItem('chuseok_volleyball_members', JSON.stringify(members));
+            localStorage.setItem('chuseok_volleyball_matches', JSON.stringify(matches));
+            localStorage.setItem('chuseok_volleyball_raffle_winners', JSON.stringify(raffleWinners));
+
+            if (db && auth?.currentUser && stateDocRef) {
+                setDoc(stateDocRef, {
+                    members: members,
+                    matches: matches,
+                    raffleWinners: raffleWinners,
+                    updatedAt: Date.now()
+                }, { merge: true }).catch(err => console.error("Firestore sync error:", err));
+            }
+        }
+
+        function refreshAllViews() {
+            renderRaffleView();
+            renderTeamsView();
+            renderDraftCounts();
+            renderScheduleAndStandings();
+            renderRosterTable();
+        }
+
+        // --- RAFFLE VIEW LOGIC ---
+        function renderRaffleView() {
+            const assignedCountBadge = document.getElementById('raffleAssignedCountBadge');
+            const assignedGrid = document.getElementById('assignedTicketsGrid');
+
+            const totalMembers = members.length;
+            const assignedMembers = members.filter(m => m.raffleNo).sort((a, b) => a.raffleNo - b.raffleNo);
+            
+            if (assignedCountBadge) {
+                assignedCountBadge.innerText = `발급 현황: ${assignedMembers.length}/${totalMembers}명`;
+            }
+
+            if (assignedGrid) {
+                if (members.length === 0) {
+                    assignedGrid.innerHTML = `<div class="text-center text-xs text-slate-500 py-6">등록된 회원이 없습니다.</div>`;
+                } else {
+                    assignedGrid.innerHTML = members.map(m => `
+                        <div class="p-3 bg-slate-900/90 rounded-xl border ${m.raffleNo ? 'border-amber-500/30' : 'border-slate-800'} flex items-center justify-between text-xs hover:border-amber-400/60 transition-all">
+                            <div class="flex items-center gap-2 overflow-hidden">
+                                <span class="font-mono font-bold ${m.raffleNo ? 'text-amber-300 bg-amber-500/20 border border-amber-500/30' : 'text-slate-500 bg-slate-800 border border-slate-700'} px-2 py-0.5 rounded text-xs shrink-0">
+                                    ${m.raffleNo ? `${m.raffleNo}번` : '미부여'}
+                                </span>
+                                <span class="font-bold text-white text-sm truncate">${m.name}</span>
+                                <span class="text-[10px] text-slate-400 shrink-0">(${m.gender} / ${m.team || '미배정'})</span>
+                            </div>
+                            <div class="flex items-center gap-1 shrink-0 ml-2">
+                                <button onclick="openEditMemberModal(${m.id})" class="px-2 py-1 bg-slate-800 hover:bg-slate-700 text-amber-300 rounded text-[11px] font-semibold border border-slate-700 transition-all">
+                                    <i class="fa-solid fa-pen text-[10px]"></i> 수정
+                                </button>
+                                ${m.raffleNo ? `
+                                    <button onclick="clearSingleRaffleNumber(${m.id})" class="px-2 py-1 bg-slate-800 hover:bg-rose-500/20 text-rose-400 rounded text-[11px] font-semibold border border-slate-700 hover:border-rose-500/30 transition-all" title="번호 해제">
+                                        <i class="fa-solid fa-xmark"></i>
+                                    </button>
+                                ` : ''}
+                            </div>
+                        </div>
+                    `).join('');
+                }
+            }
+
+            const winnersBody = document.getElementById('raffleWinnersBody');
+            if (winnersBody) {
+                if (raffleWinners.length === 0) {
+                    winnersBody.innerHTML = `<tr><td colspan="4" class="text-center py-6 text-xs text-slate-500">아직 경품 추첨 당첨 내역이 없습니다.</td></tr>`;
+                } else {
+                    winnersBody.innerHTML = raffleWinners.map(w => `
+                        <tr class="hover:bg-slate-800/40">
+                            <td class="py-2.5 px-3 font-bold text-amber-300">${w.prizeTitle || '경품'}</td>
+                            <td class="py-2.5 px-3 text-center font-mono font-bold text-amber-400">${w.raffleNo}번</td>
+                            <td class="py-2.5 px-3 font-bold text-white">${w.memberName}</td>
+                            <td class="py-2.5 px-3 text-slate-300 text-xs">${w.team || '미배정'}</td>
+                        </tr>
+                    `).join('');
+                }
+            }
+        }
+
+        window.openAddRaffleMemberModal = function() {
+            showAddMemberModalWindow();
+        };
+
+        window.clearSingleRaffleNumber = function(memberId) {
+            const m = members.find(x => x.id === memberId);
+            if (m) {
+                m.raffleNo = null;
+                saveData();
+                refreshAllViews();
+                window.showToast(`${m.name} 회원의 경품 번호가 해제되었습니다.`);
+            }
+        };
+
+        window.autoAssignAllRaffleNumbers = function() {
+            window.showConfirmModal("전원 번호 부여", "모든 회원에게 중복 없이 랜덤 경품 번호를 부여하시겠습니까?", () => {
+                const totalCount = Math.max(members.length, 35);
+                const availableNumbers = Array.from({ length: totalCount }, (_, i) => i + 1);
+                
+                for (let i = availableNumbers.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [availableNumbers[i], availableNumbers[j]] = [availableNumbers[j], availableNumbers[i]];
+                }
+
+                members.forEach((m, idx) => {
+                    m.raffleNo = availableNumbers[idx];
+                });
+
+                saveData();
+                refreshAllViews();
+                window.showToast(`🎉 ${members.length}명의 회원에게 랜덤 경품 번호가 부여되었습니다!`);
+            });
+        };
+
+        window.clearAllRaffleNumbers = function() {
+            window.showConfirmModal("경품 번호 초기화", "모든 회원의 경품 번호를 초기화하시겠습니까?", () => {
+                members.forEach(m => m.raffleNo = null);
+                saveData();
+                refreshAllViews();
+                window.showToast("경품 번호가 초기화되었습니다.");
+            });
+        };
+
+        window.clearRaffleHistory = function() {
+            window.showConfirmModal("당첨 내역 초기화", "경품 추첨 당첨 기록을 초기화하시겠습니까?", () => {
+                raffleWinners = [];
+                saveData();
+                refreshAllViews();
+                window.showToast("당첨 기록이 초기화되었습니다.");
+            });
+        };
+
+        let isDrawingRaffle = false;
+
+        window.startRaffleDraw = function() {
+            if (!isAdminMode) {
+                window.openPasswordModal(executeRaffleDraw, "경품 추첨 (관리자 비밀번호 확인)");
+                return;
+            }
+            executeRaffleDraw();
+        };
+
+        function executeRaffleDraw() {
+            if (isDrawingRaffle) return;
+
+            const displayNoEl = document.getElementById('raffleDisplayNo');
+            const winnerDetailEl = document.getElementById('raffleWinnerDetail');
+            const prizeTitleInput = document.getElementById('prizeTitleInput');
+            const btn = document.getElementById('btnStartRaffle');
+
+            const prizeTitle = prizeTitleInput ? prizeTitleInput.value.trim() || '추석 특별 경품' : '추석 특별 경품';
+            const eligibleMembers = members.filter(m => m.raffleNo && Number(m.raffleNo) >= 1);
+
+            if (eligibleMembers.length === 0) {
+                window.showToast("경품 번호가 부여된 회원이 없습니다. 관리자 메뉴에서 번호를 부여해주세요!");
+                return;
+            }
+
+            isDrawingRaffle = true;
+            if (btn) {
+                btn.disabled = true;
+                btn.classList.add('opacity-50');
+            }
+            if (winnerDetailEl) {
+                winnerDetailEl.classList.add('hidden');
+            }
+
+            let counter = 0;
+            const maxTicks = 35;
+            
+            try {
+                getAudioContext();
+            } catch (e) {
+                console.warn("AudioContext init error:", e);
+            }
+
+            const availableNos = eligibleMembers.map(m => Number(m.raffleNo));
+
+            const timer = setInterval(() => {
+                counter++;
+                const randNo = availableNos[Math.floor(Math.random() * availableNos.length)];
+                if (displayNoEl) {
+                    displayNoEl.innerText = randNo < 10 ? `0${randNo}` : `${randNo}`;
+                }
+                
+                try {
+                    playTickSound();
+                } catch(e) {
+                    console.warn("Tick sound error:", e);
+                }
+
+                if (counter >= maxTicks) {
+                    clearInterval(timer);
+
+                    const winner = eligibleMembers[Math.floor(Math.random() * eligibleMembers.length)];
+
+                    if (displayNoEl) {
+                        displayNoEl.innerText = Number(winner.raffleNo) < 10 ? `0${winner.raffleNo}` : `${winner.raffleNo}`;
+                    }
+                    
+                    const wNameEl = document.getElementById('wName');
+                    const wTeamEl = document.getElementById('wTeam');
+                    if (wNameEl) wNameEl.innerText = winner.name;
+                    if (wTeamEl) wTeamEl.innerText = `${winner.team || '팀 미배정'} (경품 번호: ${winner.raffleNo}번)`;
+                    if (winnerDetailEl) winnerDetailEl.classList.remove('hidden');
+
+                    raffleWinners.unshift({
+                        id: Date.now(),
+                        prizeTitle: prizeTitle,
+                        raffleNo: winner.raffleNo,
+                        memberName: winner.name,
+                        team: winner.team || '미배정',
+                        drawnAt: new Date().toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' })
+                    });
+
+                    saveData();
+                    renderRaffleView();
+
+                    try {
+                        playCelebrationFanfare();
+                    } catch(e) {
+                        console.warn("Fanfare error:", e);
+                    }
+
+                    if (typeof confetti === 'function') {
+                        try {
+                            confetti({
+                                particleCount: 150,
+                                spread: 90,
+                                origin: { y: 0.5 }
+                            });
+                        } catch(e) {
+                            console.warn("Confetti error:", e);
+                        }
+                    }
+
+                    isDrawingRaffle = false;
+                    if (btn) {
+                        btn.disabled = false;
+                        btn.classList.remove('opacity-50');
+                    }
+                    window.showToast(`🎉 [${prizeTitle}] ${winner.name}님 당첨을 축하합니다!`);
+                }
+            }, 80);
+        }
+
+        // --- TEAMS VIEW LOGIC ---
+        function renderTeamsView() {
+            const grid = document.getElementById('teamsGrid');
+            if (!grid) return;
+
+            grid.innerHTML = TEAMS.map(team => {
+                const teamMembers = members.filter(m => m.team === team.key);
+                const maleCount = teamMembers.filter(m => m.gender === '남').length;
+                const femaleCount = teamMembers.filter(m => m.gender === '여').length;
+
+                return `
+                    <div class="glass-panel p-5 rounded-3xl border ${team.color.split(' ')[0]} flex flex-col justify-between">
+                        <div>
+                            <div class="flex items-center justify-between mb-3 pb-3 border-b border-slate-700/60">
+                                <h3 class="text-xl font-bold text-white">${team.name}</h3>
+                                <div class="text-xs px-3 py-1 rounded-full bg-slate-900/80 border border-slate-700 text-slate-300">
+                                    총 <strong class="text-amber-300">${teamMembers.length}</strong>명 (남${maleCount} / 여${femaleCount})
+                                </div>
+                            </div>
+
+                            <div class="space-y-1.5">
+                                ${teamMembers.length === 0 ? `
+                                    <p class="text-xs text-slate-500 py-4 text-center">배정된 선수가 없습니다.</p>
+                                ` : teamMembers.map(m => `
+                                    <div class="flex items-center justify-between p-2 rounded-xl bg-slate-900/50 hover:bg-slate-900/80 transition-all border border-slate-800">
+                                        <div class="flex items-center gap-2">
+                                            <span class="text-xs">${m.gender === '남' ? '👨' : '👩'}</span>
+                                            <span class="font-bold text-sm text-white">${m.name}</span>
+                                            ${m.raffleNo ? `<span class="text-[10px] bg-amber-500/20 text-amber-300 border border-amber-500/30 px-1.5 py-0.2 rounded font-mono">#${m.raffleNo}</span>` : ''}
+                                        </div>
+                                        ${isAdminMode ? `
+                                            <span class="text-xs font-semibold px-2 py-0.5 rounded bg-slate-800 text-amber-300 border border-slate-700">${m.skill} 등급</span>
+                                        ` : ''}
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        window.exportTeamsText = function() {
+            let text = "🌕 추석 맞이 월·토·배·구 한마당 팀 명단 🌕\n\n";
+            TEAMS.forEach(t => {
+                const teamMems = members.filter(m => m.team === t.key);
+                text += `[${t.name}] (${teamMems.length}명)\n`;
+                text += teamMems.map(m => `- ${m.name} (${m.gender}${m.raffleNo ? `, 번호:${m.raffleNo}` : ''})`).join('\n') + "\n\n";
+            });
+
+            const tempInput = document.createElement('textarea');
+            tempInput.value = text;
+            document.body.appendChild(tempInput);
+            tempInput.select();
+            document.execCommand('copy');
+            document.body.removeChild(tempInput);
+
+            window.showToast("📋 팀 명단이 클립보드에 복사되었습니다!");
+        };
+
+        // --- DRAFT TOOL LOGIC ---
+        function renderDraftCounts() {
+            const countsEl = document.getElementById('draftSkillCounts');
+            if (!countsEl) return;
+
+            const maleMems = members.filter(m => m.gender === '남');
+            const femaleMems = members.filter(m => m.gender === '여');
+
+            countsEl.innerHTML = `
+                <div class="grid grid-cols-2 gap-4 bg-slate-900/60 p-4 rounded-2xl border border-slate-800">
+                    <div class="text-center">
+                        <span class="text-xs text-slate-400 block mb-1">👨 남자 선수</span>
+                        <span class="text-2xl font-black text-amber-300">${maleMems.length}명</span>
+                    </div>
+                    <div class="text-center">
+                        <span class="text-xs text-slate-400 block mb-1">👩 여자 선수</span>
+                        <span class="text-2xl font-black text-amber-300">${femaleMems.length}명</span>
+                    </div>
+                </div>
+            `;
+        }
+
+        window.requestDraftPin = function() {
+            window.openPasswordModal(executeTeamDraft, "팀 자동 추첨 (관리자 확인)");
+        };
+
+        function executeTeamDraft() {
+            const animBox = document.getElementById('draftAnimationBox');
+            const statusText = document.getElementById('draftStatusText');
+
+            if (animBox) animBox.classList.remove('hidden');
+            if (statusText) statusText.innerText = "선수 배치 및 균등 추첨 중...";
+
+            setTimeout(() => {
+                // Separate by Gender & Skill
+                const maleGroups = { '가': [], '나': [], '다': [], '라': [] };
+                const femaleGroups = { '가': [], '나': [], '다': [], '라': [] };
+
+                members.forEach(m => {
+                    if (m.gender === '남') {
+                        if (maleGroups[m.skill]) maleGroups[m.skill].push(m);
+                    } else {
+                        if (femaleGroups[m.skill]) femaleGroups[m.skill].push(m);
+                    }
+                });
+
+                const shuffleArray = (arr) => {
+                    for (let i = arr.length - 1; i > 0; i--) {
+                        const j = Math.floor(Math.random() * (i + 1));
+                        [arr[i], arr[j]] = [arr[j], arr[i]];
+                    }
+                    return arr;
+                };
+
+                const teamKeys = ['월팀', '토팀', '배팀', '구팀'];
+                
+                // Balance Men
+                ['가', '나', '다', '라'].forEach(skill => {
+                    const group = shuffleArray([...maleGroups[skill]]);
+                    group.forEach((m, idx) => {
+                        m.team = teamKeys[idx % 4];
+                    });
+                });
+
+                // Balance Women
+                ['가', '나', '다', '라'].forEach(skill => {
+                    const group = shuffleArray([...femaleGroups[skill]]);
+                    group.forEach((m, idx) => {
+                        m.team = teamKeys[idx % 4];
+                    });
+                });
+
+                saveData();
+                refreshAllViews();
+
+                if (animBox) animBox.classList.add('hidden');
+                window.showToast("🎉 팀 추첨이 완벽하게 완료되었습니다!");
+                window.switchTab('teams');
+            }, 1200);
+        }
+
+        // --- SCHEDULE & STANDINGS LOGIC ---
+        function renderScheduleAndStandings() {
+            const list = document.getElementById('matchScheduleList');
+            if (!list) return;
+
+            list.innerHTML = matches.map(m => `
+                <div class="glass-panel p-4 rounded-2xl border border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                    <div class="flex items-center gap-2">
+                        <span class="px-2.5 py-1 bg-amber-500/20 text-amber-300 font-bold rounded-lg text-xs border border-amber-500/30">${m.time}</span>
+                        <span class="text-xs text-slate-400 font-bold">${m.status === 'FINISHED' ? '경기 종료' : '대기 중'}</span>
+                    </div>
+
+                    <div class="flex items-center justify-center gap-3 my-1 sm:my-0">
+                        <div class="text-right w-24 sm:w-28 font-bold text-white text-sm">${m.teamA}</div>
+                        
+                        <div class="flex items-center gap-1.5">
+                            <input type="number" value="${m.scoreA !== null ? m.scoreA : ''}" 
+                                onchange="updateMatchScore(${m.id}, 'A', this.value)"
+                                placeholder="0" class="w-12 h-10 bg-slate-900 border border-slate-700 rounded-xl text-center text-amber-300 font-mono font-bold text-lg outline-none focus:border-amber-400">
+                            <span class="text-slate-500 font-black">:</span>
+                            <input type="number" value="${m.scoreB !== null ? m.scoreB : ''}" 
+                                onchange="updateMatchScore(${m.id}, 'B', this.value)"
+                                placeholder="0" class="w-12 h-10 bg-slate-900 border border-slate-700 rounded-xl text-center text-amber-300 font-mono font-bold text-lg outline-none focus:border-amber-400">
+                        </div>
+
+                        <div class="text-left w-24 sm:w-28 font-bold text-white text-sm">${m.teamB}</div>
+                    </div>
+                </div>
+            `).join('');
+
+            renderStandings();
+        }
+
+        window.updateMatchScore = function(matchId, team, val) {
+            const match = matches.find(x => x.id === matchId);
+            if (!match) return;
+
+            const score = val !== '' ? parseInt(val, 10) : null;
+            if (team === 'A') match.scoreA = score;
+            if (team === 'B') match.scoreB = score;
+
+            if (match.scoreA !== null && match.scoreB !== null) {
+                match.status = 'FINISHED';
+            } else {
+                match.status = 'SCHEDULED';
+            }
+
+            saveData();
+            renderScheduleAndStandings();
+        };
+
+        function renderStandings() {
+            const standingsBody = document.getElementById('standingsBody');
+            if (!standingsBody) return;
+
+            const stats = TEAMS.map(t => ({
+                key: t.key,
+                name: t.name,
+                wins: 0,
+                losses: 0,
+                diff: 0,
+                totalPoints: 0
+            }));
+
+            matches.forEach(m => {
+                if (m.status === 'FINISHED' && m.scoreA !== null && m.scoreB !== null) {
+                    const teamA = stats.find(s => s.key === m.teamA);
+                    const teamB = stats.find(s => s.key === m.teamB);
+
+                    if (teamA && teamB) {
+                        teamA.diff += (m.scoreA - m.scoreB);
+                        teamB.diff += (m.scoreB - m.scoreA);
+                        teamA.totalPoints += m.scoreA;
+                        teamB.totalPoints += m.scoreB;
+
+                        if (m.scoreA > m.scoreB) {
+                            teamA.wins++;
+                            teamB.losses++;
+                        } else if (m.scoreB > m.scoreA) {
+                            teamB.wins++;
+                            teamA.losses++;
+                        }
+                    }
+                }
+            });
+
+            stats.sort((a, b) => {
+                if (b.wins !== a.wins) return b.wins - a.wins;
+                if (b.diff !== a.diff) return b.diff - a.diff;
+                return b.totalPoints - a.totalPoints;
+            });
+
+            standingsBody.innerHTML = stats.map((s, idx) => `
+                <tr class="border-b border-slate-800/60 hover:bg-slate-800/40">
+                    <td class="py-3 px-2 text-center font-bold font-mono text-amber-300">${idx + 1}</td>
+                    <td class="py-3 px-2 font-bold text-white">${s.name}</td>
+                    <td class="py-3 px-2 text-center text-emerald-400 font-bold">${s.wins}</td>
+                    <td class="py-3 px-2 text-center text-rose-400 font-bold">${s.losses}</td>
+                    <td class="py-3 px-2 text-center font-mono font-bold ${s.diff > 0 ? 'text-amber-300' : s.diff < 0 ? 'text-slate-400' : 'text-slate-500'}">${s.diff > 0 ? `+${s.diff}` : s.diff}</td>
+                </tr>
+            `).join('');
+        }
+
+        // --- ROSTER TABLE MANAGEMENT ---
+        function renderRosterTable() {
+            const head = document.getElementById('rosterTableHead');
+            const body = document.getElementById('rosterTableBody');
+            if (!head || !body) return;
+
+            head.innerHTML = `
+                <tr>
+                    <th class="py-3 px-3">성별</th>
+                    <th class="py-3 px-3">이름</th>
+                    <th class="py-3 px-3">소속 팀</th>
+                    <th class="py-3 px-3 text-center">경품 번호</th>
+                    ${isAdminMode ? `<th class="py-3 px-3 text-center">실력 등급</th>` : ''}
+                    <th class="py-3 px-3 text-right">관리</th>
+                </tr>
+            `;
+
+            let filtered = members;
+            if (rosterGenderFilter !== 'all') {
+                filtered = members.filter(m => m.gender === rosterGenderFilter);
+            }
+
+            if (filtered.length === 0) {
+                body.innerHTML = `<tr><td colspan="6" class="text-center py-6 text-slate-500">등록된 선수가 없습니다.</td></tr>`;
+                return;
+            }
+
+            body.innerHTML = filtered.map(m => `
+                <tr class="hover:bg-slate-800/40">
+                    <td class="py-3 px-3 font-bold">${m.gender === '남' ? '👨 남' : '👩 여'}</td>
+                    <td class="py-3 px-3 font-bold text-white">${m.name}</td>
+                    <td class="py-3 px-3 text-amber-300 font-semibold">${m.team || '미배정'}</td>
+                    <td class="py-3 px-3 text-center font-mono font-bold text-amber-400">
+                        ${m.raffleNo ? `${m.raffleNo}번` : '<span class="text-slate-600 font-normal">-</span>'}
+                    </td>
+                    ${isAdminMode ? `<td class="py-3 px-3 text-center font-bold text-amber-300">${m.skill}</td>` : ''}
+                    <td class="py-3 px-3 text-right space-x-1">
+                        <button onclick="openEditMemberModal(${m.id})" class="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-amber-300 rounded-lg text-xs font-semibold border border-slate-700">
+                            수정
+                        </button>
+                        <button onclick="deleteMember(${m.id})" class="px-2.5 py-1 bg-slate-800 hover:bg-rose-500/20 text-rose-400 rounded-lg text-xs font-semibold border border-slate-700 hover:border-rose-500/30">
+                            삭제
+                        </button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        window.switchGenderRoster = function(gender) {
+            rosterGenderFilter = gender;
+            document.querySelectorAll('.roster-tab-btn').forEach(btn => {
+                btn.className = "roster-tab-btn px-4 py-2 rounded-xl text-xs font-bold text-slate-300 hover:text-white transition-all";
+            });
+            const activeBtn = document.getElementById(`roster-tab-${gender}`);
+            if (activeBtn) {
+                activeBtn.className = "roster-tab-btn px-4 py-2 rounded-xl text-xs font-bold bg-amber-500 text-slate-950 transition-all";
+            }
+            renderRosterTable();
+        };
+
+        window.openAddMemberModal = function() {
+            showAddMemberModalWindow();
+        };
+
+        function showAddMemberModalWindow() {
+            document.getElementById('modalTitle').innerHTML = `<i class="fa-solid fa-user-plus text-amber-400"></i> 신규 회원 등록`;
+            document.getElementById('editMemberId').value = '';
+            document.getElementById('modalGender').value = '남';
+            document.getElementById('modalName').value = '';
+            document.getElementById('modalRaffleNo').value = '';
+            document.getElementById('modalSkill').value = '가';
+            document.getElementById('memberModal').classList.remove('hidden');
+        }
+
+        window.openEditMemberModal = function(id) {
+            const m = members.find(x => x.id === id);
+            if (!m) return;
+            document.getElementById('modalTitle').innerHTML = `<i class="fa-solid fa-user-pen text-amber-400"></i> 회원 정보 및 번호 수정`;
+            document.getElementById('editMemberId').value = m.id;
+            document.getElementById('modalGender').value = m.gender || '남';
+            document.getElementById('modalName').value = m.name;
+            document.getElementById('modalRaffleNo').value = m.raffleNo || '';
+            document.getElementById('modalSkill').value = m.skill || '가';
+            document.getElementById('memberModal').classList.remove('hidden');
+        };
+
+        window.closeMemberModal = function() {
+            document.getElementById('memberModal').classList.add('hidden');
+        };
+
+        window.saveMember = function() {
+            const id = document.getElementById('editMemberId').value;
+            const gender = document.getElementById('modalGender').value;
+            const name = document.getElementById('modalName').value.trim();
+            const raffleNoVal = document.getElementById('modalRaffleNo').value.trim();
+            const skill = document.getElementById('modalSkill').value;
+
+            if (!name) {
+                window.showToast("회원 이름을 입력해주세요!");
+                return;
+            }
+
+            const parsedRaffleNo = raffleNoVal !== '' ? parseInt(raffleNoVal, 10) : null;
+
+            if (parsedRaffleNo !== null) {
+                const existing = members.find(m => m.raffleNo === parsedRaffleNo && m.id !== parseInt(id, 10));
+                if (existing) {
+                    window.showToast(`${parsedRaffleNo}번 경품 번호는 이미 ${existing.name} 회원이 사용 중입니다.`);
+                    return;
+                }
+            }
+
+            if (id) {
+                const m = members.find(x => x.id === parseInt(id, 10));
+                if (m) {
+                    m.gender = gender;
+                    m.name = name;
+                    m.skill = skill;
+                    m.raffleNo = parsedRaffleNo;
+                }
+            } else {
+                const newId = members.length > 0 ? Math.max(...members.map(x => x.id)) + 1 : 1;
+                members.push({
+                    id: newId,
+                    gender: gender,
+                    name: name,
+                    skill: skill,
+                    team: '월팀',
+                    raffleNo: parsedRaffleNo
+                });
+            }
+
+            saveData();
+            window.closeMemberModal();
+            refreshAllViews();
+            window.showToast("회원 정보가 저장되었습니다.");
+        };
+
+        window.deleteMember = function(id) {
+            const m = members.find(x => x.id === id);
+            if (!m) return;
+            window.showConfirmModal("선수 삭제", `${m.name} 선수를 명단에서 삭제하시겠습니까?`, () => {
+                members = members.filter(x => x.id !== id);
+                saveData();
+                refreshAllViews();
+                window.showToast(`${m.name} 선수가 삭제되었습니다.`);
+            });
+        };
+
+        window.requestResetDefaultData = function() {
+            window.openPasswordModal(() => {
+                window.showConfirmModal("데이터 초기화", "모든 명단과 경기 결과가 기본 상태로 초기화됩니다.", () => {
+                    members = JSON.parse(JSON.stringify(DEFAULT_MEMBERS));
+                    matches = JSON.parse(JSON.stringify(DEFAULT_MATCHES));
+                    raffleWinners = [];
+                    saveData();
+                    refreshAllViews();
+                    window.showToast("기본 데이터로 초기화되었습니다.");
+                });
+            }, "초기화 비밀번호 확인");
+        };
+
+        // Initialize Realtime Sync on Load
+        window.addEventListener('DOMContentLoaded', () => {
+            initRealtime();
+        });
+    </script>
+</body>
+</html>
